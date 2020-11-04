@@ -23,6 +23,25 @@ func (*server) Calculate(ctx context.Context, in *calculatorpb.CalculateRequest)
 	return res, nil
 }
 
+func (*server) PrimeDecomposition(req *calculatorpb.PrimeRequest, stream calculatorpb.CalculatorService_PrimeDecompositionServer) error {
+	log.Println("Starting Prime computation...")
+	pn := req.GetPrimeNumber().GetNumber()
+	var k int32 = 2
+	for pn > 1 {
+		log.Println("Prime computation iteration...")
+		if pn%k == 0 {
+			res := &calculatorpb.PrimeResponse{
+				DecomposedPrime: k,
+			}
+			stream.Send(res)
+			pn /= k
+		} else {
+			k++
+		}
+	}
+	return nil
+}
+
 func main() {
 	log.Println("Starting gRPC server...")
 
