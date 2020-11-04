@@ -28,7 +28,15 @@ message PrimeResponse{
     int32 decomposed_prime = 1;
 }
 
+message AverageRequest{
+    int32 number = 1;
+}
+message AverageResponse{
+    int32 number = 1;
+}
+
 service CalculatorService{
     rpc Calculate(CalculateRequest) returns (CalculateResponse){};
     rpc PrimeDecomposition(PrimeRequest) returns (stream PrimeResponse){};
+    rpc Average(stream AverageRequest) returns (AverageResponse){};
 }

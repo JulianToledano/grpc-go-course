@@ -19,7 +19,8 @@ func main() {
 
 	c := calculatorpb.NewCalculatorServiceClient(cc)
 	// doUnary(c)
-	doStream(c)
+	// doStream(c)
+	doClientStream(c)
 }
 
 func doUnary(c calculatorpb.CalculatorServiceClient) {
@@ -58,4 +59,38 @@ func doStream(c calculatorpb.CalculatorServiceClient) {
 		}
 		log.Println("Response from PrimeDecomposition: %v", msg.GetDecomposedPrime())
 	}
+}
+
+func doClientStream(c calculatorpb.CalculatorServiceClient) {
+	log.Println("Starring to do a client streaming rpc...")
+
+	requests := []*calculatorpb.AverageRequest{
+		&calculatorpb.AverageRequest{
+			Number: 1,
+		},
+		&calculatorpb.AverageRequest{
+			Number: 2,
+		},
+		&calculatorpb.AverageRequest{
+			Number: 3,
+		},
+		&calculatorpb.AverageRequest{
+			Number: 4,
+		},
+	}
+
+	stream, err := c.Average(context.Background())
+	if err != nil {
+		log.Fatalln("Error while calling Average: %v", err)
+	}
+
+	for _, req := range requests {
+		log.Println("Sending req: %v", req)
+		stream.Send(req)
+	}
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalln("Error while receiving")
+	}
+	log.Println("Average result: %v", res)
 }
