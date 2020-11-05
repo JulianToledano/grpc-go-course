@@ -64,6 +64,32 @@ func (*server) Average(stream calculatorpb.CalculatorService_AverageServer) erro
 	}
 }
 
+func (*server) Maximum(stream calculatorpb.CalculatorService_MaximumServer) error {
+	log.Println("Starting Maximum stream...")
+	var max int32 = 0
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Println("Finished reading client stream")
+			return nil
+		}
+		if err != nil {
+			log.Fatalln("Error while reading client stream: %v", err)
+			return err
+		}
+		n := req.GetNumber()
+		if n > max {
+			max = n
+		}
+		err = stream.Send(&calculatorpb.MaxResponse{
+			Number: max,
+		})
+		if err != nil {
+			log.Fatalln("Error while sending data to client: %v", err)
+		}
+	}
+}
+
 func main() {
 	log.Println("Starting gRPC server...")
 
